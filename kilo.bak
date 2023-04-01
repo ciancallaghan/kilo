@@ -654,9 +654,13 @@ void editorProcessKeypress() {
     int c = editorReadKey();
 
     switch (c) {
+        case '\r':
+            editorInsertNewline();
+            break;
+
         case CTRL_KEY('q'):
             if (E.dirty && quit_times > 0) {
-                editorSetStatusMessage("WARNING!! File has unsave changes. "
+                editorSetStatusMessage("WARNING!! File has unsaved changes. "
                         "Press Ctrl-Q %d more times to quit.", quit_times);
                 quit_times--;
                 return;
@@ -670,13 +674,6 @@ void editorProcessKeypress() {
             editorSave();
             break;
 
-        case CTRL_KEY('f'):
-            editorFind();
-            break;
-
-        case CTRL_KEY('l'):
-            break;
-
         case HOME_KEY:
             E.cx = 0;
             break;
@@ -684,6 +681,17 @@ void editorProcessKeypress() {
         case END_KEY:
             if (E.cy < E.numrows)
                 E.cx = E.row[E.cy].size;
+            break;
+
+		case CTRL_KEY('f'):
+			editorFind();
+			break;
+
+        case BACKSPACE:
+        case CTRL_KEY('h'):
+        case DEL_KEY:
+            if (c == DEL_KEY) editorMoveCursor(ARROW_RIGHT);
+            editorDelChar();
             break;
 
         case PAGE_UP:
@@ -701,61 +709,21 @@ void editorProcessKeypress() {
                     editorMoveCursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
             }
             break;
-    }
 
-    if (E.mode == 0) {
-        switch (c) {
-            case 'h':
-            case 'j':
-            case 'k':
-            case 'l':
-                {
-                    if (c == 'h') {
-                        c = ARROW_LEFT;
-                    } else if (c == 'j') {
-                        c = ARROW_DOWN;
-                    } else if (c == 'k') {
-                        c = ARROW_UP;
-                    } else if (c == 'l') {
-                        c = ARROW_RIGHT;
-                    }
+        case ARROW_UP:
+        case ARROW_DOWN:
+        case ARROW_LEFT:
+        case ARROW_RIGHT:
+            editorMoveCursor(c);
+            break;
 
-                    editorMoveCursor(c);
-                }
-                break;
+        case CTRL_KEY('l'):
+        case '\x1b':
+            break;
 
-            case 'i':
-                E.mode = 1;
-                break;
-        }
-    } else if (E.mode == 1) {
-        switch (c) {
-            case '\r':
-                editorInsertNewline();
-                break;
-
-            case BACKSPACE:
-            case CTRL_KEY('h'):
-            case DEL_KEY:
-                if (c == DEL_KEY) editorMoveCursor(ARROW_RIGHT);
-                editorDelChar();
-                break;
-
-            case ARROW_UP:
-            case ARROW_DOWN:
-            case ARROW_LEFT:
-            case ARROW_RIGHT:
-                editorMoveCursor(c);
-                break;
-
-            case '\x1b':
-                E.mode = 0;
-                break;
-
-            default:
-                editorInsertChar(c);
-                break;
-        }
+        default:
+            editorInsertChar(c);
+            break;
     }
 
     quit_times = KILO_QUIT_TIMES;
