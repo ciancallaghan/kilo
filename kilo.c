@@ -836,7 +836,14 @@ void editorProcessKeypress() {
 				break;				
 
 			case 'a':
-				editorMoveCursor(ARROW_RIGHT);
+				if (E.cy < E.numrows)
+					editorMoveCursor(ARROW_RIGHT);
+				E.mode = 1;
+				break;
+
+			case 'A':
+				if (E.cy < E.numrows)
+					E.cx = E.row[E.cy].size;
 				E.mode = 1;
 				break;
 
