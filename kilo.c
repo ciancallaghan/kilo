@@ -285,7 +285,7 @@ void editorUpdateSyntax(erow *row) {
 		if (mcs_len && mce_len && !in_string) {
 			if (in_comment) {
 				row->hl[i] = HL_MLCOMMENT;
-				if (!strcmp(&row->render[i], mce, mce_len)) {
+				if (!strncmp(&row->render[i], mce, mce_len)) {
 					memset(&row->hl[i], HL_MLCOMMENT, mce_len);
 					i += mce_len;
 					in_comment = 0;
@@ -359,7 +359,7 @@ void editorUpdateSyntax(erow *row) {
 		i++;
 	}
 	
-	int change = (row->hl_open_comment != in_comment);
+	int changed = (row->hl_open_comment != in_comment);
 	row->hl_open_comment = in_comment;
 	if (changed && row->idx + 1 < E.numrows)
 		editorUpdateSyntax(&E.row[row->idx + 1]);
